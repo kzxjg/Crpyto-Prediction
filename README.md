@@ -1,0 +1,1 @@
+This project reflects our attempt to forecast the price of Bitcoin or the larger cryptocurrency market. Our goal is to explore the existing states and challenges associated with time series forecasting problems in this domain.
