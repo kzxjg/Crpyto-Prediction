@@ -1,5 +1,3 @@
-It looks like you're aiming for a single, ready-to-use README file for your GitHub repository. I've compiled all the provided information into a comprehensive README.md format below, making it directly copy-pastable for your convenience.
-
 Forecasting Bitcoin Price using Machine Learning
 Introduction
 This project investigates the application of fundamental machine learning algorithms to forecast Bitcoin prices. Our goal is to explore the existing states and challenges of time series forecasting within the volatile cryptocurrency market. The ability to predict market movements can be incredibly valuable for investors, helping to mitigate losses and potentially achieve substantial profits.
