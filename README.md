@@ -1,85 +1,70 @@
-CMPT 353 Project Report: Forecasting Bitcoin Price using Machine Learning
+It looks like you're aiming for a single, ready-to-use README file for your GitHub repository. I've compiled all the provided information into a comprehensive README.md format below, making it directly copy-pastable for your convenience.
+
+Forecasting Bitcoin Price using Machine Learning
 Introduction
-Cryptocurrency is well-known as a volatile and high-risk, high-return asset. The ability to predict the market's movement for the next hour or day is incredibly valuable, aiding investors in mitigating losses and potentially achieving substantial profits. With the use of fundamental machine learning algorithms, this project reflects our attempt to forecast the price of Bitcoin or the larger cryptocurrency market. Our goal is to explore the existing states and challenges associated with time series forecasting problems in this domain.
+This project investigates the application of fundamental machine learning algorithms to forecast Bitcoin prices. Our goal is to explore the existing states and challenges of time series forecasting within the volatile cryptocurrency market. The ability to predict market movements can be incredibly valuable for investors, helping to mitigate losses and potentially achieve substantial profits.
 
 Datasets
-The dataset we used contained daily cryptocurrency prices from the Binance exchange, found on https://www.CryptoDataDownload.com. CryptoDataDownload provides datasets for a plethora of different coins; however, we only selected a few which had pronounced market cap for our analysis and prediction tasks, such as BTC, ETH, ADA, BNB, and DOGE. The reason for using the additional coins is because their prices correlate with Bitcoin. Money flow to other coins may cause the price of Bitcoin to alter, which therefore causes either increases or or decreases in price.
+We used daily cryptocurrency price data from the Binance exchange, sourced from CryptoDataDownload.com. For our analysis and prediction tasks, we selected cryptocurrencies with pronounced market capitalization like BTC, ETH, ADA, BNB, and DOGE. We chose these additional coins because their prices often correlate with Bitcoin, and money flow to or from them can influence Bitcoin's value.
 
-The dataset contains:
+The dataset includes the following features:
 
-Unix: Timestamp indicating the record's time
-Symbol: Cryptocurrency symbol (e.g., BTCUSDT, ETHUSDT, etc.)
+Unix: Timestamp of the record
+Symbol: Cryptocurrency symbol (e.g., BTCUSDT, ETHUSDT)
 Open Price: Beginning-of-day price
 Close Price: End-of-day price
 Low Price: Minimum price observed during the day
 Highest Price: Maximum price observed during the day
-Volume: Trading volume within the day measured in cryptocurrency units
-Volume of USDT: Trading volume within the day measured in US Dollars
+Volume: Trading volume in cryptocurrency units
+Volume of USDT: Trading volume in US Dollars
 Tradecount: Total count of buy and sell orders executed
+Data Preparation
 Data Cleaning
-First, we needed to unify all the CSVs to a readable format. Every CSV file was marked with a sentence "https://www.CryptoDataDownload.com" as the header, so we removed it from the CSV and saved it to make it readable. The CSV file "Binance_BTCUSDT_2021_minute.csv" contained several columns, including "marketorder_volume," "marketorder_volume_from," "date_close," and "close_unix." However, due to inconsistencies, they lacked relevance to our analysis, which resulted in their removal rather than tampering with our data by filling the missing values or averaging, which can lead to inaccurate results. After this process, we produced a similar number of files to our raw dataset, however, much cleaner and readable by the read_csv function.
+Our initial data cleaning steps involved:
 
+Removing the extraneous header line, "https://www.CryptoDataDownload.com," from all CSV files.
+Identifying and removing inconsistent or irrelevant columns such as marketorder_volume, marketorder_volume_from, date_close, and close_unix from Binance_BTCUSDT_2021_minute.csv to avoid data contamination and ensure relevance to our analysis.
 Data Preprocessing
-To speed up the procedure without spending time manually going through each individual crypto dataset, we merged separate cryptocurrency dataframes into a single one. The name of the appropriate symbol precedes each column. Furthermore, we removed the Unix timestamp and symbol column since they are unnecessary. In conclusion, we created a dataframe with columns containing all the features of these cryptocurrencies with their symbol as a prefix: Date, ADAUSDT_open, ADAUSDT_close, ..., ETHUSDT_tradecount. After that, we saved the CSV files as gz compression to optimize the file sizes.
-
-After preprocessing the data, below is a visualization of some cryptocurrency daily close prices:
-
-BTC ETH
-(Self-correction: The provided text doesn't include the actual visualization, so I will omit describing it beyond what's stated.)
-
-We also applied a LOESS filter to the visualization in order to show the true signal shape and facilitate a better comprehension of the data trends and patterns.
+To streamline our workflow, we merged separate cryptocurrency dataframes into a single, unified one. Each column was prefixed with its respective symbol (e.g., ADAUSDT_open, ETHUSDT_tradecount). We then removed the Unix timestamp and Symbol columns as they were not needed for our models. The processed dataframes were saved as .gz compressed CSV files to optimize file sizes.
 
 Feature Selection
-We used open price, close price, low price, high price, volume, volume in USD, and trade count as our main features.
+We used open price, close price, low price, high price, volume, volume in USD, and trade count as our primary features.
 
-Originally, we experimented with the daily, hourly, and minute datasets; however, the three showed identical patterns in trends, and due to resource and framework limitations, we decided to run our experiments using only the daily dataset. Furthermore, the daily dataset captures a wider view of market trends, is less prone to trading noise, and is more useful for investors. Therefore, we only work with the daily dataset.
+While we initially experimented with daily, hourly, and minute datasets, we ultimately decided to focus on the daily dataset. This choice was made due to resource and framework limitations, and because the daily dataset offers a broader view of market trends, is less susceptible to trading noise, and is generally more useful for investors.
 
-By combining all of those features, our ultimate goal is to predict Bitcoin closing price the next day in the future using the daily dataset. In addition, we also implemented sequence input features, meaning, the model can take data from multiple days to predict the next day. This is done by creating many duplications of the features in the dataframe and shifting each column accordingly to the number of their relative dates to current.
+Our main goal is to predict the Bitcoin closing price for the next day. To capture temporal dependencies, we implemented sequence input features. This means our models can take data from multiple preceding days to predict the next day's price. We achieved this by duplicating features within the dataframe and shifting each column to represent data from relative past dates.
 
 Machine Learning Experiments
 Evaluation Metric
-Since this is a regression problem, Root Mean Square Error (RMSE) will be the metric to evaluate our models. RMSE takes the Euclidean distance between the ground truth price and predicted price. The lower the RMSE values are, the better our model's performance will be for predicting continuous values.
+As this is a regression problem, we chose Root Mean Square Error (RMSE) as our evaluation metric. RMSE calculates the Euclidean distance between the actual (ground truth) price and the predicted price. A lower RMSE indicates better model performance for continuous value prediction.
 
 Ordinary Features
-We started by taking all selected features and feeding them as input to our model. Then we deployed and experimented with models ranging from simple to advanced, such as KNeighborsRegressor (KNN), Random Forests (RF), and Neural Network (MLP) to evaluate which model is the best.
+We began our experiments by feeding all selected features as input to our models. We explored models ranging from simple to advanced, including KNeighborsRegressor (KNN), Random Forests (RF), and Neural Network (MLP).
 
-To ensure scale uniformity across all variables, we used the MinMaxScaler to normalize the features. As a result, some features—like pricing and volume in USD—that have higher values are kept from dominating and causing disproportionate effects for the models.
-
-The shuffle option in train_test_split is a great way to avoid biased datasets for training and validating. However, in our time series data cases, this option tends to reduce the generalization because when it shuffles the dataset before splitting, the train and valid set will contain similar data points, making the model see all kinds of samples, and we cannot know how it performs on examples it has never seen. To test this hypothesis, we split the dataset into three portions instead of two: training set, validation set, and testing set. First, splitting the dataset to construct the testing with shuffle to False, then we have another split on the remaining dataset to get the validation and training sets, shuffle option to True. Below is a simple setup with a KNN model using single day input. We observed significant differences between valid set and test set errors. The train, validation, and test errors are 1533.97, 1727.48, and 2884.81 (USD) respectively. Below are some plots demonstrating how these figures represent:
-(Self-correction: The provided text doesn't include the actual plots, so I will omit describing them beyond what's stated.)
-
-The validation set has interlacing data points with the training set since we turned shuffling on; therefore, the appearance of the two plots looks similar. Although the model seems to perform well on the validation set, it shows poor performance on new data. Therefore, keeping the shuffle option off is equivalent to the assumption that we don’t know anything about the future, so the model cannot see similar data points in the train set, and we can evaluate it better.
-
-Following testing with one input sequence, the MLP model yields the best results with a RMSE validation error of about 708.8003 (USD). It seems the error is not that bad for unpredictable assets like BTC. However, a closer look at the graph reveals that the predictions lag behind the actual values by around 1 unit of time.
-
-Expanding input sequence length for the neural network model:
-
-With a 2-day input sequence, the validation error is 755.58458.
-Extending to a 3-day input sequence yields a validation error of 806.87314.
-Further increasing to a 5-day input sequence results in a validation error of 929.24621.
-It is counter-intuitive since we thought more prior information would lead to better prediction because it can capture the trend better. However, it was not the case here, and more inputs tended to cause more noise for the model to be confused and incapable of learning. This is maybe because the models we are experimenting with are not complex enough, and we cannot experiment with a very large hidden layer of MLP due to resource limitation.
-
+Normalization: We applied MinMaxScaler to normalize features, ensuring all variables were on a uniform scale. This prevents features with higher values (like price and volume) from disproportionately affecting the models.
+Data Splitting for Time Series: Crucially, we avoided shuffling the dataset before splitting for time series data. Instead, we split the data into training, validation, and testing sets sequentially (shuffle=False). This approach ensures that the training set does not contain data points similar to the validation or test sets, allowing for a more realistic evaluation of how the model performs on truly unseen future data. Our experiments showed significant differences between validation and test errors when shuffling was used, confirming that an unshuffled split is vital for proper time series evaluation.
+Single-Day Input Results: The MLP model yielded the best results with a validation RMSE of approximately 708.80 USD. While this error might seem reasonable for an unpredictable asset like Bitcoin, a closer look revealed that predictions consistently lagged behind actual values by about one unit of time.
+Impact of Input Sequence Length for MLP (Ordinary Features):
+2-day input sequence: 755.58 RMSE
+3-day input sequence: 806.87 RMSE
+5-day input sequence: 929.25 RMSE Counterintuitively, increasing the input sequence length led to worse performance. We believe this might be due to the models not being complex enough to effectively process more input features, potentially introducing noise rather than useful patterns.
 Differential Features
-Instead of using the original features, we replaced them by using the differences between the current day features with one previous step features. This is done by shifting the entire dataframe by 1 and subtracting the original one from it.
+Instead of using raw feature values, we transformed them into differential features, representing the difference between the current day's features and the previous day's features. This was done by shifting the entire dataframe by one step and subtracting it from the original.
 
-For normalization, we decided to use StandardScaler in this case as it will give better results with these differential features.
-
-After experimenting with a single input sequence, our best valid score with the smallest generalization gap is the Random Forest model with a train error of 871.4660 (USD) and a validation error of 783.05 (USD). This makes sense because maybe difference values can be easier to threshold by if-else statements, where if price has a large change, it will tend to continue to change in that direction for several future steps.
-
-Differential features seem to improve all the models with validation errors that were lower by around 20-30%. However, we noticed some models (specifically Neural Network) try to workaround the prediction problem by repeating the previous step price though output difference is close to 0. Although the validation error of MLP in this case is 584.0263, which is an improvement from using ordinary features, it is unusable since the predictions are useless.
-
-Expanding input sequence length for the random forest model:
-
-With a 2-day input sequence, the validation error is 789.75150.
-Extending to a 3-day input sequence yields a validation error of 787.97543.
-Further increasing to a 5-day input sequence results in a validation error of 796.58988.
+Normalization: For differential features, we used StandardScaler, which yielded better results.
+Single-Day Input Results: With differential features, the Random Forest model achieved the best validation score with the smallest generalization gap: a train RMSE of 871.47 USD and a validation RMSE of 783.05 USD. This suggests that difference values might be easier for tree-based models to learn, as they can represent thresholds for changes in direction.
+Observations: Differential features generally improved model performance, leading to 20-30% lower validation errors across models. However, we observed that some models, particularly the Neural Network, tended to predict differences close to zero, effectively repeating the previous day's price. While this lowered the validation RMSE (e.g., 584.03 USD for MLP), the predictions were largely unusable.
+Impact of Input Sequence Length for RF (Differential Features):
+2-day input sequence: 789.75 RMSE
+3-day input sequence: 787.98 RMSE
+5-day input sequence: 796.59 RMSE
 Multi-step Time Series Forecasting Trials
-In addition to multiple inputs, we tried allowing the models to output multiple “next days” to see how far we can push our model. Multi-step time series forecasting can be formulated as multiple output regression models. The results we obtained are not accurate, and as the number of outputs increases, the RMSE increases significantly. Regardless of how we expanded the model trying to overfit the data, the model could not. Here is one output result we got by using 10 days and predicting 5 days using Random Forest using ordinary features.
+We also attempted multi-step time series forecasting, allowing models to output predictions for multiple "next days." This was formulated as a multiple-output regression problem. The results were not accurate, and the RMSE increased significantly as the number of output steps grew. The models struggled to generalize for longer-term predictions, suggesting difficulties in overfitting even with expanded model complexity.
 
 Conclusion
-Despite experimenting with various models and trying different feature engineering techniques, the best result we got which seems to provide useful prediction is with an RMSE error around 708.8003 by using a neural network and ordinary features input. Unfortunately, this level of error and the observed lag in predictions make it unsuitable for practical application. Further exploration and model refinement may be necessary to enhance the performance and decrease the prediction error, aiming for more reliable and accurate outcomes in practical real-world scenarios.
+Despite experimenting with various models and feature engineering techniques, the best practical result we obtained was with an RMSE of approximately 708.80 USD using a neural network and ordinary features. Unfortunately, this level of error, combined with the observed lag in predictions, renders it unsuitable for practical, real-world applications in mitigating losses or achieving substantial profits in cryptocurrency trading. Further exploration and significant model refinement, likely involving more sophisticated architectures, would be necessary to achieve more reliable and accurate outcomes.
 
 Challenges
-Data limitation: The data we got covers only one cycle of the market, so it is hard to decide which part to train on and which part is used to evaluate so that the model can learn the patterns but not memorize the prices.
-Framework limitation: While Sklearn serves as a reliable tool, its lack of GPU support hinders training and prediction acceleration. We can only use a small number of input sequences since the amount of computation grows massively as we increase the quantity of features. A framework such as PyTorch or TensorFlow may produce better results.
-Machine learning model limitation: As we increase our input sequence number, the results are worse, meaning the models cannot incorporate all the features. This signifies the need for more complex and sequence-specialized models such as RNN, LSTM, or Transformer.
+Data Limitation: Our dataset covered only one market cycle. This made it challenging to identify the optimal training and evaluation splits that would allow the model to learn general market patterns without simply memorizing past prices.
+Framework Limitation: Using Scikit-learn, which lacks GPU support, significantly hindered training and prediction acceleration. This constrained our ability to experiment with larger input sequences, as computational requirements grew massively with increased features. Frameworks like PyTorch or TensorFlow, with GPU capabilities, would likely yield better results.
+Machine Learning Model Limitation: As we increased the input sequence length, our models' performance deteriorated. This suggests that the models we experimented with (KNN, RF, MLP) were not complex enough or specialized for sequence data. More advanced, sequence-aware models like Recurrent Neural Networks (RNN), Long Short-Term Memory networks (LSTM), or Transformer models are likely needed to effectively incorporate more temporal features.
